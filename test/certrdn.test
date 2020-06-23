@@ -1,0 +1,37 @@
+#!/bin/sh
+
+PATH=../src:$PATH
+
+assert () {
+  EXPECTED="$1"
+
+  shift
+
+  ACTUAL=$(if test "$1" = "!"; then shift; ! "$@"; else "$@"; fi)
+
+  test "$EXPECTED" = "$ACTUAL"
+}
+
+set -ex
+
+assert "" ! certrdn
+
+assert "" certrdn 2.5.4.3
+
+assert "*.google.com" certrdn 2.5.4.3 google-cert.pem
+
+assert "US" certrdn 2.5.4.6 google-cert.pem
+
+assert "Mountain View" certrdn 2.5.4.7 google-cert.pem
+
+assert "California" certrdn 2.5.4.8 google-cert.pem
+
+assert "Google LLC" certrdn 2.5.4.10 google-cert.pem
+
+assert "" ! certrdn 2.5.4.9 google-cert.pem
+
+assert "" ! certrdn 2.5.4.3 /dev/null
+
+assert "*.google.com" ! certrdn 2.5.4.3 google-cert.pem /dev/null
+
+assert "$(printf "%s\n" "US" "US")" certrdn 2.5.4.6 google-cert.pem google-cert.pem

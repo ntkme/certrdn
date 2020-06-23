@@ -1,0 +1,34 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: alpine
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: apk add --no-cache alpine-sdk autoconf automake gnutls-dev
+
+      - name: Configure
+        run: autoreconf -fiv && ./configure
+
+      - name: Make
+        run: make
+
+      - name: Make Check
+        run: make check
+
+      - name: Make Install
+        run: make install
+
+      - name: Make Clean
+        run: make clean
